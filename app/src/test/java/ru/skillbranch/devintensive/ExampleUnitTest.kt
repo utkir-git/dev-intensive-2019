@@ -55,11 +55,11 @@ class ExampleUnitTest {
     @Test
     fun test_copy() {
         val user = User.makeUser("Jhone Wick")
-        var user2 = user.copy(lastVisit = Date().add(-4, TimeUnits.SECUND))
+        var user2 = user.copy(lastVisit = Date().add(-4, TimeUnits.SECOND))
         var user3 = user.copy(lastName = "Cena", lastVisit = Date())
         println(
             """
-            ${user.lastVisit?.add(10, TimeUnits.SECUND)?.format()} 
+            ${user.lastVisit?.add(10, TimeUnits.SECOND)?.format()} 
             ${user2.lastVisit?.add(5, TimeUnits.DAY)?.format()} 
             ${user3.lastVisit?.format()} 
         """.trimIndent()
@@ -83,7 +83,7 @@ class ExampleUnitTest {
 //        val user = User.makeUser("aaa ddd")
 //        user.lastVisit = Date()
 //        val user2 = user.copy(lastVisit = Date().add(10, TimeUnits.MINUTE))
-//        val user3 = user.copy(firstName = "Akram", lastVisit = Date().add(-5, TimeUnits.SECUND))
+//        val user3 = user.copy(firstName = "Akram", lastVisit = Date().add(-5, TimeUnits.SECOND))
 //        println(
 //            """
 //    ${user.lastVisit?.format("HH:mm")}
@@ -120,7 +120,6 @@ class ExampleUnitTest {
                 type = "image"
             )
         when (textMessage) {
-            is BaseMessage -> println("this is base message")
             is TextMessage -> println("this is text message")
             is ImageMessage -> println("this is image message")
         }
@@ -172,7 +171,7 @@ class ExampleUnitTest {
 
     @Test
     fun test_plural() {
-        val d1 = TimeUnits.SECUND.plural(1) //1 секунду
+        val d1 = TimeUnits.SECOND.plural(1) //1 секунду
         val d2 = TimeUnits.MINUTE.plural(4) //4 минуты
         val d3 = TimeUnits.HOUR.plural(19) //19 часов
         val d4 = TimeUnits.DAY.plural(222) //222 дня
@@ -184,7 +183,7 @@ class ExampleUnitTest {
 
     @Test
     fun test_date_add() {
-        println(Date().add(2, TimeUnits.SECUND)) //Thu Jun 27 14:00:02 GST 2019
+        println(Date().add(2, TimeUnits.SECOND)) //Thu Jun 27 14:00:02 GST 2019
         println(Date().add(-4, TimeUnits.DAY))  //Thu Jun 23 14:00:00 GST 2019
     }
 
