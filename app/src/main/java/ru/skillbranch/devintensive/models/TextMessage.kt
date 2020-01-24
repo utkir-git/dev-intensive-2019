@@ -9,7 +9,7 @@ class TextMessage(
     id: String,
     from: User?,
     chat: Chat,
-   var isInComing: Boolean = false,
+    var isInComing: Boolean = false,
     date: Date = Date(),
     var text: String?
 
