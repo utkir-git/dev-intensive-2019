@@ -1,3 +1,4 @@
+import android.util.Log
 import ru.skillbranch.devintensive.extensions.humanizeDiff
 import ru.skillbranch.devintensive.models.UserView
 import ru.skillbranch.devintensive.utils.Utils
@@ -14,6 +15,7 @@ val status=if (lastVisit==null) "Еще ни разу не был" else if (isOn
         nickName = nickName,
         initials = initials,
         status = status
+
     )
 }
 

@@ -2,6 +2,7 @@ package ru.skillbranch.devintensive.models
 
 import Chat
 import User
+import android.util.Log
 import stripHtml
 import truncate
 import java.util.*

@@ -1,9 +1,9 @@
 fun String.truncate(limit: Int = 16): String? {
     val text = this.trim()
-    if (text.length > limit) {
-        return text.substring(0, limit).trim() + "..."
+    return if (text.length > limit) {
+         text.substring(0, limit).trim() + "..."
     }
-    return text
+    else text
 }
 fun String.stripHtml():String? {
     val text=this.trim()

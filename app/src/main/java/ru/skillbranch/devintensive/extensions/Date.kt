@@ -13,10 +13,10 @@ fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String? {
     return dateFormat.format(this)
 }
 
-fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECUND): Date {
+fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
     var time = this.time
     time += when (units) {
-        TimeUnits.SECUND -> value * SECOND
+        TimeUnits.SECOND -> value * SECOND
         TimeUnits.MINUTE -> value * MINUTE
         TimeUnits.HOUR -> value * HOUR
         TimeUnits.DAY -> value * DAY
@@ -55,23 +55,23 @@ fun Date.humanizeDiff(date: Date? = Date()): String? {
 }
 
 enum class TimeUnits {
-    SECUND, MINUTE, HOUR, DAY;
+    SECOND, MINUTE, HOUR, DAY;
     fun plural(i: Int): String? {
-        when (this.name) {
-            TimeUnits.SECUND.name -> {
-                return "$i секунду"
+        return when (this.name) {
+            TimeUnits.SECOND.name -> {
+                 "$i секунду"
             }
             TimeUnits.MINUTE.name -> {
-                return "$i минуты"
+                 "$i минуты"
             }
             TimeUnits.HOUR.name -> {
-                return "$i часов"
+                 "$i часов"
             }
             TimeUnits.DAY.name -> {
-                return "$i дня"
+                 "$i дня"
             }
+            else -> ""
         }
-        return null
     }
 }
 
