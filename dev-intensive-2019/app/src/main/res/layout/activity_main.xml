@@ -46,6 +46,8 @@
             android:textColorHint="@color/color_gray_light"
             android:paddingBottom="@dimen/spacing_normal_16"
             android:paddingTop="@dimen/spacing_normal_16"
+            android:imeOptions="actionDone"
+            android:inputType="text"
             android:layout_marginLeft="@dimen/spacing_normal_16"
             android:layout_marginRight="@dimen/spacing_normal_16"
             >
