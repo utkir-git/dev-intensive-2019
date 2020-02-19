@@ -1,25 +1,23 @@
 package ru.skillbranch.devintensive.models
 
-import Chat
-import User
-import android.util.Log
-import stripHtml
-import truncate
+import ru.skillbranch.devintensive.models.data.Chat
+import ru.skillbranch.devintensive.models.data.User
 import java.util.*
 
 abstract class BaseMessage(
     val id: String,
-    val from: User?,
+    val from: User,
     val chat: Chat,
-    val isIncoming: Boolean = false,
-    val date: Date = Date()
+    val isIncoming: Boolean = true,
+    val date: Date = Date(),
+    var isReaded: Boolean = false
 ) {
     abstract fun formatMessage(): String
 
-    companion object AbstractFactory {
+    companion object AbstractFactory { // По моему это все таки не абстрактная фабрика, а фабричный метод
         var lastId = -1
         fun makeMessage(
-            from: User?,
+            from: User,
             chat: Chat,
             date: Date = Date(),
             type: String = "text",
@@ -27,22 +25,26 @@ abstract class BaseMessage(
             isIncoming: Boolean = false
         ): BaseMessage {
             lastId++
-            val textLength = 15
-            var textClear = payload.toString().stripHtml()
-            var textTruncate = textClear?.truncate(textLength)
             return when (type) {
-                "image" -> ImageMessage(
-                    "$lastId",
+                "text" -> TextMessage(
+                    lastId.toString(),
                     from,
                     chat,
                     date = date,
-                    image = textTruncate
+                    text = payload as String,
+                    isIncoming = isIncoming
                 )
-                else -> TextMessage("$lastId", from, chat, date = date, text = textTruncate)
+                "image" -> ImageMessage(
+                    lastId.toString(),
+                    from,
+                    chat,
+                    date = date,
+                    image = payload as String,
+                    isIncoming = isIncoming
+                )
+                else -> throw IllegalStateException()
             }
         }
+
     }
 }
-
-
-

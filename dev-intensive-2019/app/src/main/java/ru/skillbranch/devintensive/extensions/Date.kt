@@ -2,79 +2,97 @@ package ru.skillbranch.devintensive.extensions
 
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
-const val SECOND = 1000L
-const val MINUTE = SECOND * 60
-const val HOUR = MINUTE * 60
-const val DAY = HOUR * 24
+private const val SECOND = 1000L
+private const val MINUTE = 60L * SECOND
+private const val HOUR = 60L * MINUTE
+private const val DAY = 24L * HOUR
 
-fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String? {
+fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String {
     val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
     return dateFormat.format(this)
 }
 
-fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
-    var time = this.time
-    time += when (units) {
-        TimeUnits.SECOND -> value * SECOND
-        TimeUnits.MINUTE -> value * MINUTE
-        TimeUnits.HOUR -> value * HOUR
-        TimeUnits.DAY -> value * DAY
+fun Date.add(value: Int, timeUnit: TimeUnits): Date {
+    return this.apply {
+        time += when (timeUnit) {
+            TimeUnits.SECOND -> value * SECOND
+            TimeUnits.DAY -> value * DAY
+            TimeUnits.HOUR -> value * HOUR
+            TimeUnits.MINUTE -> value * MINUTE
+        }
     }
-    this.time = time
-    return this
+
 }
 
-fun Date.humanizeDiff(date: Date? = Date()): String? {
-    val time = this.time
-    var timeDiff = System.currentTimeMillis() - time
-    if (timeDiff >= 0) {
-        if (0 <= timeDiff && timeDiff <= SECOND) return "только что"                            //   0с - 1с "только что"
-        else if (SECOND < timeDiff && timeDiff <= 45 * SECOND) return "несколько секунд назад"    //   1с - 45с "несколько секунд назад"
-        else if (45 * SECOND < timeDiff && timeDiff <= 75 * SECOND) return "минуту назад"          //   45с - 75с "минуту назад"
-        else if (75 * SECOND < timeDiff && timeDiff <= 45 * MINUTE) return "${timeDiff / MINUTE} минут назад" //   75с - 45мин "N минут назад"
-        else if (45 * MINUTE < timeDiff && timeDiff <= 75 * MINUTE) return "час назад"            //   45мин - 75мин "час назад"
-        else if (75 * MINUTE < timeDiff && timeDiff <= 22 * HOUR) return "${timeDiff / HOUR} часов назад"  //   75мин 22ч "N часов назад"
-        else if (22 * HOUR < timeDiff && timeDiff <= 26 * HOUR) return "день назад"               //   22ч - 26ч "день назад"
-        else if (26 * HOUR < timeDiff && timeDiff <= 360 * DAY) return "${timeDiff / DAY} дней назад" //   26ч - 360д "N дней назад"
-        else if (timeDiff > 360 * DAY) return "более года назад"                       //   >360д "более года назад"
+fun Date.shortFormat(): String {
+    return this.format(if (isSameDay(Date())) "HH:mm" else "dd.MM.yy")
+}
 
-    } else {
-        timeDiff *= -1
-        if (0 <= timeDiff && timeDiff <= SECOND) return "только что"                            //   0с - 1с "только что"
-        else if (SECOND < timeDiff && timeDiff <= 45 * SECOND) return "через несколько секунд"    //   1с - 45с "через несколько секунд"
-        else if (45 * SECOND < timeDiff && timeDiff <= 75 * SECOND) return "через минуту"          //   45с - 75с "через минуту"
-        else if (75 * SECOND < timeDiff && timeDiff <= 45 * MINUTE) return "через ${timeDiff / MINUTE} минуты" //   75с - 45мин "через N минуты"
-        else if (45 * MINUTE < timeDiff && timeDiff <= 75 * MINUTE) return "через час"            //   45мин - 75мин "через час"
-        else if (75 * MINUTE < timeDiff && timeDiff <= 22 * HOUR) return "через ${timeDiff / HOUR} часов"  //   75мин 22ч "через N часов"
-        else if (22 * HOUR < timeDiff && timeDiff <= 26 * HOUR) return "через день"               //   22ч - 26ч "через день"
-        else if (26 * HOUR < timeDiff && timeDiff <= 360 * DAY) return "через ${timeDiff / DAY} дней" //   26ч - 360д "через N"
-        else if (timeDiff > 360 * DAY) return "более чем через год"                       //   >360д "более чем через год"
+fun Date.isSameDay(date: Date): Boolean {
+    return this.time / DAY == date.time / DAY
+}
+
+fun Date.humanizeDiff(date: Date = Date()): String {
+
+    return when {
+        abs(this.time - date.time) <= SECOND && date > this -> "только что"
+        this.time < date.time - 360 * DAY -> "более года назад"
+        this.time > date.time + 360 * DAY -> "более чем через год"
+        else -> {
+            val seconds = (abs(this.time - date.time) / SECOND).toInt()
+            val template = if (this > date) "через %s" else "%s назад"
+            template.format(
+                when {
+                    seconds in 1..45 -> "несколько секунд"
+                    seconds in 45..75 -> "минуту"
+                    seconds in 75..45 * 60 -> pluralForm(seconds / 60, TimeUnits.MINUTE)
+                    seconds in 45 * 60..75 * 60 -> "час"
+                    seconds in 75 * 60..22 * 3600 -> pluralForm(seconds / 3600, TimeUnits.HOUR)
+                    seconds in 22 * 3600..26 * 3600 -> "день"
+                    seconds in 26 * 3600..360 * 86400 -> pluralForm(seconds / 86400, TimeUnits.DAY)
+                    else -> throw IllegalStateException()
+                }
+            )
+        }
+
     }
-    return null
+}
+
+
+private fun pluralForm(value: Int, unit: TimeUnits): String {
+
+
+    val form = when {
+        value % 10 == 1 && value != 11 -> 0
+        value % 10 in 2..4 -> 1
+        else -> 2
+    }
+    val forms = listOf(
+        "%s секунду",
+        "%s секунды",
+        "%s секунд",
+        "%s минуту",
+        "%s минуты",
+        "%s минут",
+        "%s час",
+        "%s часа",
+        "%s часов",
+        "%s день",
+        "%s дня",
+        "%s дней"
+    )
+    return forms[form + 3 * when (unit) {
+        TimeUnits.SECOND -> 0
+        TimeUnits.MINUTE -> 1
+        TimeUnits.HOUR -> 2
+        TimeUnits.DAY -> 3
+    }].format(value)
 }
 
 enum class TimeUnits {
     SECOND, MINUTE, HOUR, DAY;
-    fun plural(i: Int): String? {
-        return when (this.name) {
-            TimeUnits.SECOND.name -> {
-                 "$i секунду"
-            }
-            TimeUnits.MINUTE.name -> {
-                 "$i минуты"
-            }
-            TimeUnits.HOUR.name -> {
-                 "$i часов"
-            }
-            TimeUnits.DAY.name -> {
-                 "$i дня"
-            }
-            else -> ""
-        }
-    }
+
+    fun plural(value: Int): String = pluralForm(value, this)
 }
-
-
-
-
